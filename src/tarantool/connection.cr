@@ -1,5 +1,5 @@
 require "socket"
-require "logger"
+require "log"
 require "base64"
 require "digest/sha1"
 require "uri"
@@ -67,7 +67,7 @@ module Tarantool
       user : String? = nil,
       password : String? = nil,
       *,
-      @logger : Logger? = nil,
+      @logger : Log? = nil,
       @connect_timeout : Time::Span? = 1.second,
       @dns_timeout : Time::Span? = 1.second,
       @read_timeout : Time::Span? = 1.second,
@@ -83,7 +83,7 @@ module Tarantool
       @open = true
 
       greeting = @socket.gets
-      @logger.try &.info("Initiated connection with #{greeting}") # Tarantool Version
+      @logger.try &.info{"Initiated connection with #{greeting}"} # Tarantool Version
 
       @encoded_salt = @socket.gets.not_nil![0...44]
 
@@ -128,7 +128,7 @@ module Tarantool
           response = Response.new(unpacker)
           sync = response.header.sync
 
-          @logger.try &.debug("[#{sync}] " + TimeFormat.auto(arrived_at - @waiting_since[sync].not_nil!).rjust(5) + " latency")
+          @logger.try &.debug{"[#{sync}] " + TimeFormat.auto(arrived_at - @waiting_since[sync].not_nil!).rjust(5) + " latency"}
 
           @channels[sync]?.try &.send(response)
           Fiber.yield
@@ -195,7 +195,7 @@ module Tarantool
       sync = next_sync
       response = uninitialized Response
 
-      @logger.try &.debug("[#{sync}] Sending #{code} command")
+      @logger.try &.debug{"[#{sync}] Sending #{code} command"}
 
       elapsed = Time.measure do
         payload = form_request(code, sync, body)
@@ -212,7 +212,7 @@ module Tarantool
         end
       end
 
-      @logger.try &.debug("[#{sync}] " + TimeFormat.auto(elapsed).rjust(5) + " elapsed")
+      @logger.try &.debug{"[#{sync}] " + TimeFormat.auto(elapsed).rjust(5) + " elapsed"}
 
       @channels.delete(sync)
 
