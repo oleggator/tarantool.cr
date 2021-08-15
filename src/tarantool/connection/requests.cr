@@ -25,9 +25,9 @@ module Tarantool
       def authenticate(username : String, password : String = "")
         salt = Base64.decode(@encoded_salt)[0, 20]
 
-        step_1 = Digest::SHA1.new.tap(&.update(password)).result
-        step_2 = Digest::SHA1.new.tap(&.update(step_1)).result
-        step_3 = Digest::SHA1.new.tap(&.update(salt)).tap(&.update(step_2)).result
+        step_1 = Digest::SHA1.new.tap(&.update(password)).final
+        step_2 = Digest::SHA1.new.tap(&.update(step_1)).final
+        step_3 = Digest::SHA1.new.tap(&.update(salt)).tap(&.update(step_2)).final
         scramble = step_1.map_with_index { |byte, i| byte ^ step_3[i] }.to_slice
 
         send(CommandCode::Auth, {
