@@ -166,7 +166,7 @@ module Tarantool
     # Parse current box schema. Allows to use named spaces and indexes in requests.
     # NOTE: This will fail if current user doesn't have execute access to "universe".
     def parse_schema
-      eval("return box.space").body.data.first.as(Hash).keys.each do |space|
+      eval("return box.space").body.data.first.as(Hash).each_key do |space|
         indexes = eval("return box.space.#{space}.index").body.data.first
 
         if indexes.is_a?(Array)
