@@ -6,26 +6,26 @@ sleep(3)
 
 describe Tarantool do
   context "initilization with zero connect timeout" do
-    it "raises IO::Timeout" do
-      expect_raises IO::Timeout do
+    it "raises IO::TimeoutError" do
+      expect_raises IO::TimeoutError do
         Tarantool::Connection.new("localhost", 3301, connect_timeout: 0.seconds)
       end
     end
   end
 
   context "initialization with zero read timeout" do
-    it "raises IO::Timeout" do
-      expect_raises IO::Timeout do
+    it "raises IO::TimeoutError" do
+      expect_raises IO::TimeoutError do
         Tarantool::Connection.new("localhost", 3301, read_timeout: 0.seconds)
       end
     end
   end
 
   pending "request with read timeout" do
-    it "raises IO::Timeout" do
+    it "raises IO::TimeoutError" do
       db1 = Tarantool::Connection.new("localhost", 3301, read_timeout: 1.second)
 
-      expect_raises IO::Timeout do
+      expect_raises IO::TimeoutError do
         db1.eval("fiber = require('fiber'); fiber.sleep(5)")
       end
     end

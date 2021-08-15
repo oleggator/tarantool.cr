@@ -32,7 +32,7 @@ module Tarantool
     @waiting_since = {} of UInt64 => Time
     @encoded_salt : String
 
-    # Initialize a new Tarantool connection with string URI. May eventually raise `IO::Timeout` on *timeout*.
+    # Initialize a new Tarantool connection with string URI. May eventually raise `IO::TimeoutError` on *timeout*.
     #
     # ```
     # db = Tarantool::Connection.new("tarantool://admin:password@localhost:3301")
@@ -41,7 +41,7 @@ module Tarantool
       initialize(URI.parse(uri), *args, **nargs)
     end
 
-    # Initialize a new Tarantool connection with URI. May eventually raise `IO::Timeout` on *timeout*.
+    # Initialize a new Tarantool connection with URI. May eventually raise `IO::TimeoutError` on *timeout*.
     #
     # ```
     # uri = URI.parse("tarantool://localhost:3301")
@@ -52,7 +52,7 @@ module Tarantool
     end
 
     # Initialize a new Tarantool connection.
-    # May raise `IO::Timeout` on *connect_timeout* or *read_timeout*.
+    # May raise `IO::TimeoutError` on *connect_timeout* or *read_timeout*.
     #
     # If something bad happens with the connection, it will not raise unless made a request.
     # You can check is the connection is still alive with `#alive?` command.
@@ -188,7 +188,7 @@ module Tarantool
     end
 
     # Send request to Tarantool. Always returns `Response`.
-    # May raise `Response::Error` or `IO::Timeout` or `Errno`.
+    # May raise `Response::Error` or `IO::TimeoutError` or `Errno`.
     #
     # TODO: Individual read timeouts for requests.
     protected def send(code, body = nil)
