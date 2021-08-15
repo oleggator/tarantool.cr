@@ -124,7 +124,7 @@ module Tarantool
 
       while @open
         if @socket.read_fully?(slice)
-          arrived_at = Time.now
+          arrived_at = Time.local
           response = Response.new(unpacker)
           sync = response.header.sync
 
@@ -201,7 +201,7 @@ module Tarantool
         payload = form_request(code, sync, body)
 
         channel = @channels[sync] = Channel(Response).new
-        @waiting_since[sync] = Time.now
+        @waiting_since[sync] = Time.local
 
         @socket.send(payload)
 
