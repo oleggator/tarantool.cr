@@ -226,22 +226,23 @@ module Tarantool
 
     protected def form_request(code, sync, body = nil)
       packer = MessagePack::Packer.new
-      packer.write(0x01020304) # Related to endians
       packer.write({
         Key::Code.value => code.value,
         Key::Sync.value => sync,
       })
       packer.write(body)
 
-      # Related to endians as well
-      bytes = packer.to_slice
-      size = bytes.size - 5
-      bytes[4] = size.to_u8
-      bytes[3] = (size >> 8).to_u8
-      bytes[2] = (size >> 16).to_u8
-      bytes[1] = (size >> 24).to_u8
+      body = packer.to_slice
 
-      bytes
+      packer = MessagePack::Packer.new
+      packer.write(body.size)
+      header = packer.to_slice
+
+      result = IO::Memory.new(header.size + body.size)
+      result.write(header)
+      result.write(body)
+
+      result.to_slice
     end
   end
 end
