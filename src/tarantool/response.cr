@@ -114,7 +114,7 @@ module Tarantool
         # Body is optional in the successful Tarantool response, therefore #body can be nil
         # Otherwise, it must have #body#data attribute
         token = unpacker.prefetch_token
-        if token.type == :HASH && token.size > 0_i64 && !token.used
+        if token.type == MessagePack::Token::Type::Hash && token.size > 0_i64 && !token.used
           @body = Body.new(unpacker)
         else
           unpacker.read_hash # Read response body, but do not set #body attribute
