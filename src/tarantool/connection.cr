@@ -120,7 +120,7 @@ module Tarantool
 
     def routine
       slice = Bytes.new(5)
-      unpacker = MessagePack::Unpacker.new(@socket)
+      unpacker = MessagePack::IOUnpacker.new(@socket)
 
       while @open
         if @socket.read_fully?(slice)

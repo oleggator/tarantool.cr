@@ -39,7 +39,7 @@ module Tarantool
       end
 
       # :nodoc:
-      protected def initialize(unpacker : MessagePack::Unpacker)
+      protected def initialize(unpacker : MessagePack::IOUnpacker)
         unpacker.read_hash.each do |key, value|
           case key
           when Key::Code.to_u8
@@ -65,7 +65,7 @@ module Tarantool
       end
 
       # :nodoc:
-      protected def initialize(unpacker : MessagePack::Unpacker)
+      protected def initialize(unpacker : MessagePack::IOUnpacker)
         @data = unpacker.read_hash[Key::Data.to_u8].as(Array)
       end
     end
@@ -104,7 +104,7 @@ module Tarantool
     end
 
     # :nodoc:
-    def initialize(unpacker : MessagePack::Unpacker)
+    def initialize(unpacker : MessagePack::IOUnpacker)
       @header = Header.new(unpacker)
 
       if @header.code == ResponseCode::Error
@@ -113,8 +113,9 @@ module Tarantool
       else
         # Body is optional in the successful Tarantool response, therefore #body can be nil
         # Otherwise, it must have #body#data attribute
-        token = unpacker.prefetch_token
-        if token.type == MessagePack::Token::Type::Hash && token.size > 0_i64 && !token.used
+        token = unpacker.current_token
+        # TODO: fix
+        if token.is_a?(MessagePack::Token::HashT) && token.as(MessagePack::Token::HashT).size > 0_i64 # && !token.used
           @body = Body.new(unpacker)
         else
           unpacker.read_hash # Read response body, but do not set #body attribute
